@@ -277,7 +277,8 @@
         <div class="icon"></div>
         <div class="count"><span><%= count %></span></div>
       </div>
-      <span class="label"><strong>Michael Aufreiter</strong></span>
+      <!--<div class="icon"><img src="/avatar/<%= user.get('username') %>/25"/></div>-->
+      <span class="label"><strong><%= user.get('name') %></strong></span>
       <a class="header-icon user user-settings" href="#" title="User Settings">User Settings</a>
       <a class="header-icon logout right" href="#logout" title="Log out">log out</a>
       
@@ -310,41 +311,19 @@
         <div class="toggle user-settings" title="User Settings">
           <div class="icon"></div>
         </div>
-        <div class="toggle logout" title="Logout">
-          <div class="icon"></div>
-        </div>
-        
-        <div id="event_notifications" class="<%= notifications_active ? "active" : "" %>">
-          <% notifications.each(function(n) { %>
-            <a class="open-notification" href="<%= n.get('event').get('link') %>"><div class="notification<%= n.get('read') ? " read": " unread" %>">
-              <img src="/avatar/<%= n.get('event').get('creator')._id.split('/')[2]%>/30">
-              <div class="message"><%= n.get('event').get('message') %></div>
-              <div class="timestamp"><%= _.prettyDate(n.get('event').get('created_at')) %></div>
-            </div></a>
-          <% }); %>
-          <% if (notifications.length == 0) { %>
-            <div class="notification">
-              <div class="message">Currently no notifications</div>
-            </div>
-          <% } %>
-        </div>
       </div>-->
     <% } else { %>
-      
-      
-      <!--<div id="login_state">-->
-        <!--<a class="header-icon login right" href="#login" title="Log in">log in</a>-->
-        <form id="login-form" class="auth-form">
-          <input type="text" name="username" class="hint" id="login-user" value="Username">
-          <input type="password" name="password" class="hint" id="login-password" value="Password">
-          <input type="submit" value="Login"/>
-        </form>
-        <br class="clear"/>
-        <div class="signup">
-          New to Substance? <a href="#signup" class="toggle-signup">Create an Account</a>
-        </div>
+      <form id="login-form" class="auth-form">
+        <input type="submit" value="Login"/>
+        <input type="text" name="username" class="hint" id="login-user" value="Username">
+        <input type="password" name="password" class="hint" id="login-password" value="Password">
+        <a class="header-icon login right" href="#login" title="Log in">log in</a>
         
-      <!--</div>-->
+      </form>
+      <br class="clear"/>
+      <div class="signup">
+        New to Substance? <a href="#signup" class="toggle-signup">Create an Account</a>
+      </div>
     <% } %>
     <br class="clear"/>
   </script>
@@ -473,16 +452,13 @@
   
   <script type="text/x-ejs-template" name="browser_tab">
     <div class="header-icon browser" href="#" title="Open the Browser">The Browser</div>
-    <span class="label"><%= query_descr %></span>
+    <span class="label"><!--<%= query_descr %>-->Browse</span>
     
     <!--<div class="cursor"><span></span></div>
     <div class="icon <%= query ? query.type : "keyword" %>"></div>
     <div class="tab-label">Browser</div>-->
 
-
     <!--<div class="count"><%= documents.length > 0 ? documents.length : ''%></div>-->
-    
-
   </script>
   
   <script type="text/x-ejs-template" name="document_tab">
@@ -1011,32 +987,37 @@
     
     <div id="header">
 
-      <div id="menu" class="browser">
-        <!-- Home -->
-        <div id="content_tab" class="tab toggle-startpage" view="content">
-          <div class="header-icon browser" title="Open the Browser">Home</div>
-          <span class="label">Home</span>
-        </div>
-        <!-- Browser -->
-        <div id="browser_tab" class="tab" view="browser">
-          <div class="header-icon browser" title="Open the Browser">The Browser</div>
-          <span class="label">Browser</span>
-        </div>
+      <div id="menu">
+        <div id="menu_wrapper">
+          <!-- Home -->
+          <div id="content_tab" class="tab toggle-startpage" view="content">
+            <div class="header-icon browser" title="Open the Browser">Home</div>
+            <span class="label">Home</span>
+          </div>
+          <!-- Browser -->
+          <div id="browser_tab" class="tab" view="browser">
+            <div class="header-icon browser" title="Open the Browser">The Browser</div>
+            <span class="label">Browser</span>
+          </div>
 
-        <div id="document_tab" class="tab" view="document">
-        </div>
+          <div id="document_tab" class="tab" view="document">
+          </div>
 
-        <div id="new_document" class="tab">
-          <a class="header-icon new-document" href="#new_document" title="create a new document">Create a new Document</a>
-        </div>
+          <div id="new_document" class="tab">
+            <a class="header-icon new-document" href="#new_document" title="create a new document">Create a new Document</a>
+          </div>
 
-
-        <div id="login_state">
+          <div id="login_state">
+          </div>
         </div>
       </div><!-- #menu -->
 
       <div id="shelf">
         <h3>Document Settings:</h3>
+        
+        <h4>Sharing Settings</h4>
+        
+        <h4>Collaborators</h4>
       </div>
     </div><!-- #header -->
     

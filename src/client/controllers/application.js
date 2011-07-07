@@ -31,12 +31,10 @@ var ApplicationController = Backbone.Controller.extend({
       $('#browser_wrapper').attr('url', '#'+username);
 
       app.browser.bind('loaded', function() {
-        console.log('jo');
         app.toggleView('browser');
         app.browser.unbind('loaded');
       });
     }
-    
 
     return false;
   },

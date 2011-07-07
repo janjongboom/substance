@@ -16,15 +16,16 @@ var Application = Backbone.View.extend({
     'click a.publish-document': 'publishDocument',
     'click a.unpublish-document': 'unpublishDocument',
     'submit #create_document': 'createDocument',
+    'click #login-form .login': 'login',
     'submit #login-form': 'login',
     'click a.delete-document': 'deleteDocument',
     'click a.view-collaborators': 'viewCollaborators',
     'click a.toggle-document-views': 'toggleDocumentViews',
     'click a.toggle-signup': 'toggleSignup',
-    'click a.toggle-startpage': 'toggleStartpage',
+    'click .tab.toggle-startpage': 'toggleStartpage',
     'click a.toggle-edit-mode': 'toggleEditMode',
     'click a.toggle-show-mode': 'toggleShowMode',
-    'click .toggle.logout': 'logout',
+    'click #login_state .logout': 'logout',
     'click .user-settings': 'toggleUserSettings',
     'click .user-profile': 'toggleUserProfile',
     'submit #signup-form': 'registerUser',
@@ -204,7 +205,6 @@ var Application = Backbone.View.extend({
   toggleView: function(view) {
     $('.tab').removeClass('active');
     
-    console.log('#'+view+'_tab');
     $('#'+view+'_tab').addClass('active');
     
     // console.log($('#'+view+'_wrapper').position().left);
