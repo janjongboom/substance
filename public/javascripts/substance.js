@@ -1082,21 +1082,24 @@ var ApplicationController = Backbone.Controller.extend({
   
   userDocs: function(username) {    
     if (!username) { // startpage rendering
-      return app.toggleStartpage();
-    }
-    
-    if (_.include(['recent', 'subscribed'], username)) {
-      app.browser.load({"type": username, "value": 50});
+      app.toggleStartpage();
+      // Load recent docs
+      app.browser.load({"type": "recent", "value": 50});
     } else {
-      app.browser.load({"type": "user", "value": username});
+      if (_.include(['recent', 'subscribed'], username)) {
+        app.browser.load({"type": username, "value": 50});
+      } else {
+        app.browser.load({"type": "user", "value": username});
+      }
+      
+      $('#browser_wrapper').attr('url', '#'+username);
+
+      app.browser.bind('loaded', function() {
+        app.toggleView('browser');
+        app.browser.unbind('loaded');
+      });
     }
-    
-    $('#browser_wrapper').attr('url', '#'+username);
-    
-    app.browser.bind('loaded', function() {
-      app.toggleView('browser');
-      app.browser.unbind('loaded');
-    });
+
     return false;
   },
   
@@ -1737,14 +1740,14 @@ var Document = Backbone.View.extend({
     //   // TODO: check if there are changes from a realtime session
     //   init(id);
     // } else {
-    $('#document_tab').html('&nbsp;&nbsp;&nbsp;Loading...');
+    // $('#document_tab').html('&nbsp;&nbsp;&nbsp;Loading...');
     $.ajax({
       type: "GET",
       url: "/documents/"+username+"/"+docname,
       dataType: "json",
       success: function(res) {
         if (res.status === 'error') {
-          $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found');
+          // $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found');
           $('#document_wrapper').html("<div class=\"notification error\">The requested document couldn't be found.</div>");
           app.toggleView('document');
         } else {
@@ -1753,7 +1756,7 @@ var Document = Backbone.View.extend({
         }
       },
       error: function(err) {
-        $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found.');
+        // $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found.');
         $('#document_wrapper').html("<div class=\"notification error\">The requested document couldn't be found.</div>");
         app.toggleView('document');
       }
@@ -2378,7 +2381,7 @@ var DocumentBrowser = Backbone.View.extend({
     this.query = query;
     
     
-    $('#browser_tab').show().html('&nbsp;&nbsp;&nbsp;Loading documents...');
+    $('#browser_tab').show(); // .html('&nbsp;&nbsp;&nbsp;Loading documents...');
     $('#browser_wrapper').html('');
     $.ajax({
       type: "GET",
@@ -2784,7 +2787,7 @@ var Header = Backbone.View.extend({
     notifications = notifications.sort(SORT_BY_DATE_DESC);
     
     // Render login-state
-    $(this.el).html(_.tpl('header', {
+    $(this.el).html(_.tpl('login_state', {
       user: graph.get('/user/'+username),
       notifications: notifications,
       count: notifications.select(function(n) { return !n.get('read')}).length,
@@ -2810,24 +2813,31 @@ var Application = Backbone.View.extend({
     'click a.publish-document': 'publishDocument',
     'click a.unpublish-document': 'unpublishDocument',
     'submit #create_document': 'createDocument',
+    'click #login-form .login': 'login',
     'submit #login-form': 'login',
     'click a.delete-document': 'deleteDocument',
     'click a.view-collaborators': 'viewCollaborators',
     'click a.toggle-document-views': 'toggleDocumentViews',
     'click a.toggle-signup': 'toggleSignup',
-    'click a.toggle-startpage': 'toggleStartpage',
+    'click .tab.toggle-startpage': 'toggleStartpage',
     'click a.toggle-edit-mode': 'toggleEditMode',
     'click a.toggle-show-mode': 'toggleShowMode',
-    'click .toggle.logout': 'logout',
-    'click .toggle.user-settings': 'toggleUserSettings',
-    'click .toggle.user-profile': 'toggleUserProfile',
+    'click #login_state .logout': 'logout',
+    'click .user-settings': 'toggleUserSettings',
+    'click .user-profile': 'toggleUserProfile',
     'submit #signup-form': 'registerUser',
     'click .toggle.notifications': 'toggleNotifications',
     'click .toggle-toc': 'toggleTOC',
     'click #event_notifications a .notification': 'hideNotifications',
     'click #toc_wrapper': 'toggleTOC',
+    'click .toggle-document-settings': 'toggleDocumentSettings',
     'click a.open-notification': 'openNotification',
     'change #document_name': 'updateDocumentName'
+  },
+  
+  toggleDocumentSettings: function() {
+    $('#container').toggleClass('shelf');
+    return false;
   },
   
   updateDocumentName: function(e) {
@@ -2986,14 +2996,21 @@ var Application = Backbone.View.extend({
   
   switchTab: function(e) {
     this.toggleView($(e.currentTarget).attr('view'));
+    return false;
   },
   
   toggleView: function(view) {
     $('.tab').removeClass('active');
+    
     $('#'+view+'_tab').addClass('active');
-    if (view === 'browser' && !this.browser.loaded) return;
-    $('.view').hide();
-    $('#'+view+'_wrapper').show();
+    
+    // console.log($('#'+view+'_wrapper').position().left);
+    var index = $('#'+view+'_wrapper').attr('index');
+    $('#main').css('margin-left', (index*-100)+"%");
+    
+    // if (view === 'browser' && !this.browser.loaded) return;
+    // $('.view').hide();
+    // $('#'+view+'_wrapper').show();
 
     // Wait until url update got injected
     setTimeout(function() {
@@ -3125,7 +3142,7 @@ var Application = Backbone.View.extend({
     
     // Initialize document
     this.document = new Document({el: '#document_wrapper', app: this});
-    this.header = new Header({el: '#header', app: this});
+    this.header = new Header({el: '#login_state', app: this});
     this.activeUsers = [];
     
     // Try to establish a server connection
@@ -3345,32 +3362,15 @@ var remote,                              // Remote handle for server-side method
     
     $('#container').show();
     
-
-
-    window.positionBoard = function() {
-      var wrapper = document.getElementById('document_wrapper');
-      if (wrapper.offsetTop - _.scrollTop() < 0) {
-        $('#document .board').addClass('docked');
-        $('#document .board').css('left', ($('#document').offset().left)+'px');
-        $('#document .board').css('width', ($('#document').width())+'px');
-        
-        var tocOffset = $('#toc_wrapper').offset();
-        if (tocOffset && _.scrollTop() < tocOffset.top) {
-          $('#toc_wrapper').css('top', _.scrollTop()-$('#document').offset().top+"px");
-        }
-        
-      } else {
-        $('#document .board').css('left', '');
-        $('#toc_wrapper').css('top', 0);
-        $('#document .board').removeClass('docked');
-      }
+    window.position = function() {
+      $('#main .view').height($(window).height()-47);
     }
     
-    positionBoard();
+    position();
     
-    $(window).bind('scroll', positionBoard);
-    $(window).bind('resize', positionBoard);
-
+    // $(window).bind('scroll', position);
+    $(window).bind('resize', position);
+    
     // Start the engines
     app = new Application({el: $('#container'), session: session});
     
