@@ -261,7 +261,7 @@ var Application = Backbone.View.extend({
   },
   
   toggleEditMode: function(e) {
-    var user = app.document.model.get('creator').get('username');
+    var user = app.document.model.get('creator')._id.split('/')[2];
     var name = app.document.model.get('name');
     
     app.document.loadDocument(user, name, null, null, 'edit');
@@ -269,7 +269,7 @@ var Application = Backbone.View.extend({
   },
   
   toggleShowMode: function(e) {
-    var user = app.document.model.get('creator').get('username');
+    var user = app.document.model.get('creator')._id.split('/')[2];
     var name = app.document.model.get('name');
     
     app.document.loadDocument(user, name, null, null, 'show');
@@ -277,7 +277,7 @@ var Application = Backbone.View.extend({
   },
   
   loadDocument: function(e) {
-      var user = $(e.currentTarget).attr('user');
+      var user = $(e.currentTarget).attr('user').toLowerCase();
           name = $(e.currentTarget).attr('name');
 
       app.document.loadDocument(user, name, null,  null);
