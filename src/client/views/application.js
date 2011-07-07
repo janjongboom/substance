@@ -25,15 +25,21 @@ var Application = Backbone.View.extend({
     'click a.toggle-edit-mode': 'toggleEditMode',
     'click a.toggle-show-mode': 'toggleShowMode',
     'click .toggle.logout': 'logout',
-    'click .toggle.user-settings': 'toggleUserSettings',
-    'click .toggle.user-profile': 'toggleUserProfile',
+    'click .user-settings': 'toggleUserSettings',
+    'click .user-profile': 'toggleUserProfile',
     'submit #signup-form': 'registerUser',
     'click .toggle.notifications': 'toggleNotifications',
     'click .toggle-toc': 'toggleTOC',
     'click #event_notifications a .notification': 'hideNotifications',
     'click #toc_wrapper': 'toggleTOC',
+    'click .toggle-document-settings': 'toggleDocumentSettings',
     'click a.open-notification': 'openNotification',
     'change #document_name': 'updateDocumentName'
+  },
+  
+  toggleDocumentSettings: function() {
+    $('#container').toggleClass('shelf');
+    return false;
   },
   
   updateDocumentName: function(e) {
@@ -192,14 +198,22 @@ var Application = Backbone.View.extend({
   
   switchTab: function(e) {
     this.toggleView($(e.currentTarget).attr('view'));
+    return false;
   },
   
   toggleView: function(view) {
     $('.tab').removeClass('active');
+    
+    console.log('#'+view+'_tab');
     $('#'+view+'_tab').addClass('active');
-    if (view === 'browser' && !this.browser.loaded) return;
-    $('.view').hide();
-    $('#'+view+'_wrapper').show();
+    
+    // console.log($('#'+view+'_wrapper').position().left);
+    var index = $('#'+view+'_wrapper').attr('index');
+    $('#main').css('margin-left', (index*-100)+"%");
+    
+    // if (view === 'browser' && !this.browser.loaded) return;
+    // $('.view').hide();
+    // $('#'+view+'_wrapper').show();
 
     // Wait until url update got injected
     setTimeout(function() {
@@ -331,7 +345,7 @@ var Application = Backbone.View.extend({
     
     // Initialize document
     this.document = new Document({el: '#document_wrapper', app: this});
-    this.header = new Header({el: '#header', app: this});
+    this.header = new Header({el: '#login_state', app: this});
     this.activeUsers = [];
     
     // Try to establish a server connection
@@ -551,32 +565,15 @@ var remote,                              // Remote handle for server-side method
     
     $('#container').show();
     
-
-
-    window.positionBoard = function() {
-      var wrapper = document.getElementById('document_wrapper');
-      if (wrapper.offsetTop - _.scrollTop() < 0) {
-        $('#document .board').addClass('docked');
-        $('#document .board').css('left', ($('#document').offset().left)+'px');
-        $('#document .board').css('width', ($('#document').width())+'px');
-        
-        var tocOffset = $('#toc_wrapper').offset();
-        if (tocOffset && _.scrollTop() < tocOffset.top) {
-          $('#toc_wrapper').css('top', _.scrollTop()-$('#document').offset().top+"px");
-        }
-        
-      } else {
-        $('#document .board').css('left', '');
-        $('#toc_wrapper').css('top', 0);
-        $('#document .board').removeClass('docked');
-      }
+    window.position = function() {
+      $('#main .view').height($(window).height()-47);
     }
     
-    positionBoard();
+    position();
     
-    $(window).bind('scroll', positionBoard);
-    $(window).bind('resize', positionBoard);
-
+    // $(window).bind('scroll', position);
+    $(window).bind('resize', position);
+    
     // Start the engines
     app = new Application({el: $('#container'), session: session});
     

@@ -270,13 +270,35 @@
     </div>
   </script>
   
-  <script type="text/x-ejs-template" name="header">
-    <div class="title">
-      <a href="#" class="toggle-startpage">Substance</a>
-    </div>
-    
+  <script type="text/x-ejs-template" name="login_state">
     <% if (user) { %>
-      <div id="login_state" class="logged-in">
+      
+      <div class="toggle notifications<%= notifications_active ? " active" : "" %>" title="Notifications">
+        <div class="icon"></div>
+        <div class="count"><span><%= count %></span></div>
+      </div>
+      <span class="label"><strong>Michael Aufreiter</strong></span>
+      <a class="header-icon user user-settings" href="#" title="User Settings">User Settings</a>
+      <a class="header-icon logout right" href="#logout" title="Log out">log out</a>
+      
+      
+      <div id="event_notifications" class="<%= notifications_active ? "active" : "" %>">
+        <% notifications.each(function(n) { %>
+          <a class="open-notification" href="<%= n.get('event').get('link') %>"><div class="notification<%= n.get('read') ? " read": " unread" %>">
+            <img src="/avatar/<%= n.get('event').get('creator')._id.split('/')[2]%>/30">
+            <div class="message"><%= n.get('event').get('message') %></div>
+            <div class="timestamp"><%= _.prettyDate(n.get('event').get('created_at')) %></div>
+          </div></a>
+        <% }); %>
+        <% if (notifications.length == 0) { %>
+          <div class="notification">
+            <div class="message">Currently no notifications</div>
+          </div>
+        <% } %>
+      </div>
+      
+      
+      <!--<div id="login_state" class="logged-in">
         <div class="toggle notifications<%= notifications_active ? " active" : "" %>" title="Notifications">
           <div class="icon"></div>
           <div class="count"><span><%= count %></span></div>
@@ -306,9 +328,12 @@
             </div>
           <% } %>
         </div>
-      </div>
+      </div>-->
     <% } else { %>
-      <div id="login_state">
+      
+      
+      <!--<div id="login_state">-->
+        <!--<a class="header-icon login right" href="#login" title="Log in">log in</a>-->
         <form id="login-form" class="auth-form">
           <input type="text" name="username" class="hint" id="login-user" value="Username">
           <input type="password" name="password" class="hint" id="login-password" value="Password">
@@ -318,7 +343,8 @@
         <div class="signup">
           New to Substance? <a href="#signup" class="toggle-signup">Create an Account</a>
         </div>
-      </div>
+        
+      <!--</div>-->
     <% } %>
     <br class="clear"/>
   </script>
@@ -400,7 +426,7 @@
   </script>
   
   <script type="text/x-handlebars-template" name="document_wrapper">
-    <div id="document_inner_wrapper">
+    <div id="document_inner_wrapper" class="view-wrapper">
       <div id="document">
         <p>No document loaded... You can either create a <em>New Document</em> or <em>Browse</em> existing ones.</p>
       </div>
@@ -446,34 +472,37 @@
   </script>
   
   <script type="text/x-ejs-template" name="browser_tab">
-    <div class="cursor"><span></span></div>
-    <div class="icon <%= query ? query.type : "keyword" %>"></div>
-    <div class="tab-label">Browser</div>
-    <form id="search_form"><input type="text" title="Start searching" id="search" name="search" value="<%= query_descr %>" autocomplete="off"/></form>
-    <!--<div class="count"><%= documents.length > 0 ? documents.length : ''%></div>-->
-    <br class="clear"/>
+    <div class="header-icon browser" href="#" title="Open the Browser">The Browser</div>
+    <span class="label"><%= query_descr %></span>
     
-    <div class="options">
-      <% if ((!query && app.username) || (query && query.type !== 'user' && app.username)) { %> <a href="#<%= app.username %>" title="My Documents"><div class="icon user"></div></a><% } %>
-      <% if ((!query && app.username) || (query && query.type !== 'subscribed' && app.username)) { %> <a href="#subscribed" title="Subscribed Documents"><div class="icon subscribed"></div></a><% } %>
-      <% if (!query || query.type !== 'recent') { %> <a href="#recent" title="Recent Documents"><div class="icon recent"></div></a><% } %>
-    </div>
-    <div class="results"></div>
+    <!--<div class="cursor"><span></span></div>
+    <div class="icon <%= query ? query.type : "keyword" %>"></div>
+    <div class="tab-label">Browser</div>-->
+
+
+    <!--<div class="count"><%= documents.length > 0 ? documents.length : ''%></div>-->
+    
+
   </script>
   
   <script type="text/x-ejs-template" name="document_tab">
-    <div class="cursor"><span></span></div>
-    <div class="icon read"></div>
-    <div class="tab-label">Document</div>
-    <div class="user-name">
-      <span><%= username %> / </span><input type="text" id="document_name" name="document_name" value="<%= document_name %>"/>
-    </div>
+    <span class="label"><%= username %> / <strong><%= document_name %></strong></span>
+    <a class="header-icon save-document right" href="#save_document" title="save current document">save current document</a>
+    <a class="header-icon user toggle-document-settings" href="#" title="Document Settings">Document Settings</a>
   </script>
+  
+  
+  <!--<form id="search_form"><input type="text" title="Start searching" id="search" name="search" value="<%= query_descr %>" autocomplete="off"/></form>
+  <!--<div class="options">
+    <% if ((!query && app.username) || (query && query.type !== 'user' && app.username)) { %> <a href="#<%= app.username %>" title="My Documents"><div class="icon user"></div></a><% } %>
+    <% if ((!query && app.username) || (query && query.type !== 'subscribed' && app.username)) { %> <a href="#subscribed" title="Subscribed Documents"><div class="icon subscribed"></div></a><% } %>
+    <% if (!query || query.type !== 'recent') { %> <a href="#recent" title="Recent Documents"><div class="icon recent"></div></a><% } %>
+  </div>-->
   
   <script type="text/x-ejs-template" name="document_browser">
     <div id="browser_actions" class="view-actions">
     </div>
-  
+    
     <div id="browser_inner_wrapper">
       
       <div id="card_file">
@@ -660,7 +689,6 @@
   
   <!-- content-node templates for the editor -->
   <script type="text/x-ejs-template" name="document">
-    
     <div id="toc_wrapper">
       <div class="toc-header">Table Of Contents</div>
       <div id="toc">
@@ -668,10 +696,10 @@
       </div>
       <div style="document-separator">&nbsp;</div>
     </div>
-    
+  
     <div class="board">
       <div class="toggle-toc"><div class="label">Contents</div></div>
-      
+    
       <div id="document_actions" class="view-actions">
         <a href="#" title="Read Document" class="toggle-show-mode view-action-icon read<%= edit ? '' : ' active' %>"><span>Read</span></a>
 
@@ -679,7 +707,7 @@
           <a href="#" title="Write Document" class="toggle-edit-mode view-action-icon write<%= edit ? ' active' : '' %>"><span>Write</span></a>
           <a href="#" title="Delete Document" class="delete-document view-action-icon delete"><span>Delete</span></a>
         <% } %>
-        
+      
         <a href="#" title="<%= node.get('subscribed') ? "Unsubscribe" : "Subscribe document and get notified about updates" %> " class="view-action-icon <%= node.get('subscribed') ? "unsubscribe-document" : "subscribe-document" %>"><div class="subscription-count"><%= node.get('subscribers') > 0 ? node.get('subscribers') : "" %></div><span>Subscribe document and get notified about updates</span></a>
 
         <a href="<%= config.letterpress_url %>/pdf?url=http://<%= top.location.host %>/documents/<%= node.get('creator')._id.split('/')[2]+"/"+node.get('name') %>" target="_blank" title="Print Document (Experimental)" class="print-document view-action-icon print"><span>Print</span></a>
@@ -687,10 +715,10 @@
     </div>
     <div id="<%= node.html_id %>" name=<%= node.key %> level="<%= level %>" class="content-node document level-<%= level %><%= edit ? " edit" : "" %>">
       <% if (edit) { %><div class="content-node-outline"><div class="cursor"><span></span></div></div><% } %>
-      
+    
       <div class="operations">
       </div>
-      
+    
       <div class="document-title content<%= empty_title ? ' empty' : '' %>"<% if (edit) { %> contenteditable="true" title="Click To Edit Document Title"<% } %>>
         <% if (!empty_title) { %>
           <%= title %>
@@ -719,7 +747,6 @@
       <div class="document-separator"></div>
       <%= content %>
     </div>
-
   </script>
   
   <script type="text/x-handlebars-template" name="section">
@@ -979,35 +1006,52 @@
   </script>
 </head>
 <body>
+  
   <div id="container">
-    <div id="header">
-      
-    </div>
     
-    <div id="tabs">
-      <div id="browser_tab" class="tab" view="browser" title="Browser">
+    <div id="header">
+
+      <div id="menu" class="browser">
+        <!-- Home -->
+        <div id="content_tab" class="tab toggle-startpage" view="content">
+          <div class="header-icon browser" title="Open the Browser">Home</div>
+          <span class="label">Home</span>
+        </div>
+        <!-- Browser -->
+        <div id="browser_tab" class="tab" view="browser">
+          <div class="header-icon browser" title="Open the Browser">The Browser</div>
+          <span class="label">Browser</span>
+        </div>
+
+        <div id="document_tab" class="tab" view="document">
+        </div>
+
+        <div id="new_document" class="tab">
+          <a class="header-icon new-document" href="#new_document" title="create a new document">Create a new Document</a>
+        </div>
+
+
+        <div id="login_state">
+        </div>
+      </div><!-- #menu -->
+
+      <div id="shelf">
+        <h3>Document Settings:</h3>
       </div>
-      
-      <div id="document_tab" class="tab hidden" view="document" title="Document">
-      </div>
-      
-      <a href="#" class="action new-document hidden" title="Create a new document">
-        <div class="view-action-icon new"></div>
-      </a>
-    </div>
+    </div><!-- #header -->
     
     <div id="main">
-      <!-- Various content (used for user settings dialogue etc.) -->  
-      <div id="content_wrapper" class="view">
+      <!-- Various content (used for user settings dialogue etc.) -->
+      <div id="content_wrapper" class="view" index="0">
       
       </div>
     
       <!-- The document browser -->
-      <div id="browser_wrapper" class="view hidden">
+      <div id="browser_wrapper" class="view" index="1">
       </div>
     
       <!-- The document browser -->
-      <div id="document_wrapper" class="view hidden">
+      <div id="document_wrapper" class="view" index="2">
       
       </div>
     </div>

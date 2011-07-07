@@ -474,14 +474,14 @@ var Document = Backbone.View.extend({
     //   // TODO: check if there are changes from a realtime session
     //   init(id);
     // } else {
-    $('#document_tab').html('&nbsp;&nbsp;&nbsp;Loading...');
+    // $('#document_tab').html('&nbsp;&nbsp;&nbsp;Loading...');
     $.ajax({
       type: "GET",
       url: "/documents/"+username+"/"+docname,
       dataType: "json",
       success: function(res) {
         if (res.status === 'error') {
-          $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found');
+          // $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found');
           $('#document_wrapper').html("<div class=\"notification error\">The requested document couldn't be found.</div>");
           app.toggleView('document');
         } else {
@@ -490,7 +490,7 @@ var Document = Backbone.View.extend({
         }
       },
       error: function(err) {
-        $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found.');
+        // $('#document_tab').html('&nbsp;&nbsp;&nbsp; Document not found.');
         $('#document_wrapper').html("<div class=\"notification error\">The requested document couldn't be found.</div>");
         app.toggleView('document');
       }

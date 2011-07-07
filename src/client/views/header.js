@@ -55,7 +55,7 @@ var Header = Backbone.View.extend({
     notifications = notifications.sort(SORT_BY_DATE_DESC);
     
     // Render login-state
-    $(this.el).html(_.tpl('header', {
+    $(this.el).html(_.tpl('login_state', {
       user: graph.get('/user/'+username),
       notifications: notifications,
       count: notifications.select(function(n) { return !n.get('read')}).length,

@@ -47,7 +47,7 @@ var DocumentBrowser = Backbone.View.extend({
     this.query = query;
     
     
-    $('#browser_tab').show().html('&nbsp;&nbsp;&nbsp;Loading documents...');
+    $('#browser_tab').show(); // .html('&nbsp;&nbsp;&nbsp;Loading documents...');
     $('#browser_wrapper').html('');
     $.ajax({
       type: "GET",

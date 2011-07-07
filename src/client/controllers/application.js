@@ -18,21 +18,26 @@ var ApplicationController = Backbone.Controller.extend({
   
   userDocs: function(username) {    
     if (!username) { // startpage rendering
-      return app.toggleStartpage();
-    }
-    
-    if (_.include(['recent', 'subscribed'], username)) {
-      app.browser.load({"type": username, "value": 50});
+      app.toggleStartpage();
+      // Load recent docs
+      app.browser.load({"type": "recent", "value": 50});
     } else {
-      app.browser.load({"type": "user", "value": username});
+      if (_.include(['recent', 'subscribed'], username)) {
+        app.browser.load({"type": username, "value": 50});
+      } else {
+        app.browser.load({"type": "user", "value": username});
+      }
+      
+      $('#browser_wrapper').attr('url', '#'+username);
+
+      app.browser.bind('loaded', function() {
+        console.log('jo');
+        app.toggleView('browser');
+        app.browser.unbind('loaded');
+      });
     }
     
-    $('#browser_wrapper').attr('url', '#'+username);
-    
-    app.browser.bind('loaded', function() {
-      app.toggleView('browser');
-      app.browser.unbind('loaded');
-    });
+
     return false;
   },
   
